@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>苹果网站效果</title>
+  </head>
+  <body>
+    <div class="scroll-sequence">
+      <div class="sequence-container">
+        <div class="image-sequence">
+          <div class="canvas-container">
+            <div
+              class="canvas-wrapper wrapper-2"
+              style="width: 1458px; height: 820px; z-index: 9; opacity: 1"
+            >
+              <canvas id="02-head-bob-turn" width="1458" height="820"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- <span class="note"> Scroll Down or up </span> -->
+
+    <script>
+      const srcDir =
+        'https://www.apple.com/105/media/us/airpods-pro/2019/1299e2f5_9206_4470_b28e_08307a42f19b/anim/sequence/large/02-head-bob-turn/'
+      const imgSuffix = '.jpg'
+
+      console.log('Hello AirPods-Pro!')
+
+      var appleAirPodsPro = {
+        init() {
+          this.initData()
+          this.initImages()
+          this.handleResize()
+          this.bindEvents()
+        },
+
+        initData() {
+          this.canvas2 = document.getElementById('02-head-bob-turn')
+          this.context = this.canvas2.getContext('2d')
+          this.MAX_LEN = 132
+          this.imgs = []
+          this.start = 1
+          this.oldStart = -1
+          this.addN = 1
+          this.interval = 20 // 控制刷新率
+          this.leftY = 0
+          this.curScrollY = this.getScrollTop()
+          this.startPos = this.curScrollY
+          this.lastPos = this.curScrollY
+          this.isStop = false
+        },
+
+        initImages() {
+          for (let i = 0; i < this.MAX_LEN; i++) {
+            const img = new Image()
+            // img.onload = () => this.imgs[i] = img
+            img.src = this.getImage(i)
+            // 不管加载否 保证顺序
+            this.imgs.push(img)
+          }
+        },
+
+        bindEvents() {
+          window.addEventListener('resize', () => this.handleResize())
+          window.addEventListener('scroll', () => this.handleScroll())
+        },
+
+        getScrollTop() {
+          return window.scrollY || 0
+        },
+
+        getImage(num) {
+          console.assert(
+            Number.isInteger(num) && num > -1 && num < this.MAX_LEN
+          )
+          const t = ('' + num).padStart(4, '0')
+
+          return srcDir + t + imgSuffix
+        },
+
+        isOver() {
+          return this.start < 0 || this.start > this.MAX_LEN - 1
+        },
+
+        handleScroll() {
+          const scrollY = this.getScrollTop()
+          let delta = scrollY - this.curScrollY
+          const isDown = delta > 0
+
+          delta = Math.abs(delta) + this.leftY
+          this.curScrollY = scrollY
+
+          if (
+            this.isStop &&
+            isDown === this.needDown &&
+            ((isDown && this.curScrollY > this.lastPos) ||
+              (!isDown && this.curScrollY < this.lastPos))
+          ) {
+            this.isStop = false
+          }
+          if (this.isStop) return
+
+          // good idea: 补偿
+          const alpha = Math.floor(delta / this.interval) * this.addN || 0
+          this.leftY = delta % this.interval
+
+          isDown ? (this.start += alpha) : (this.start -= alpha)
+          if (this.isOver() && !this.isStop) {
+            // this.lastPos = scrollY
+            this.isStop = true
+            console.log(this.start, scrollY, this.lastPos)
+
+            // TODO: 多个 canvas 用 opacity 切换
+            // this.canvas2.style.cssText = `opacity: 0;`
+          }
+
+          if (this.start < 0) this.start = 0
+          if (this.start > this.MAX_LEN - 1) this.start = this.MAX_LEN - 1
+          if (this.startPos >= scrollY) this.start = 0
+          if (this.oldStart === this.start) return
+          this.oldStart = this.start
+          // good idea：记录
+          this.lastPos = scrollY
+          this.needDown = !isDown
+
+          this.drawCanvas(this.start)
+        },
+
+        handleResize() {
+          const wScale = window.innerWidth / (this.canvas2.width || 1458)
+          const hScale =
+            (window.innerHeight - 52) / (this.canvas2.height || 1458)
+
+          this.canvas2.style.transform = `matrix(${wScale}, 0, 0, ${hScale}, 0, 0)`
+        },
+
+        drawCanvas(sequence) {
+          // 当前序列帧
+          const imgTemp = this.imgs[sequence]
+          const canvas = this.canvas2
+
+          canvas.width = imgTemp.width
+          canvas.height = imgTemp.height
+
+          this.context.drawImage(imgTemp, 0, 0)
+        },
+      }
+
+      appleAirPodsPro.init()
+    </script>
+  </body>
+</html>
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  html,
+  body {
+    background-color: #000;
+    position: relative;
+    height: 100%;
+  }
+
+  .sequence-container {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    width: 100%;
+  }
+
+  .scroll-sequence {
+    position: absolute;
+    height: 4110vh;
+    width: 100%;
+    top: 0;
+  }
+
+  .image-sequence {
+    position: sticky;
+    top: 0;
+    overflow: hidden;
+  }
+
+  .canvas-container {
+    position: relative;
+    width: 100%;
+    height: calc(100vh - 52px);
+    padding-top: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .canvas-wrapper .wrapper-2 {
+    transition: all 0.3s;
+    will-change: transform;
+  }
+
+  span.note {
+    color: #fff;
+    font-size: 24px;
+    text-align: center;
+    display: block;
+    width: 100%;
+    margin-top: 24px;
+  }
+</style>
