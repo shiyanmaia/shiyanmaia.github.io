@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <title>map</title>
+  <link rel="icon" href="map.ico" type="image/x-icon">
+  <link rel="stylesheet" type="text/css" href="css/leaflet.css"/>
+  <script src="js/leaflet.js" type="text/javascript" charset="utf-8"></script>
+  <script src="js/jq.js" type="text/javascript" charset="utf-8"></script>
+  <script src="js/ol.js" type="text/javascript" charset="utf-8"></script>
+  <link rel="stylesheet" type="text/css" href="css/ol.css"/>
+
+  <!-- Custom fonts for this theme -->
+  <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic" rel="stylesheet" type="text/css">
+
+  <!-- Theme CSS -->
+  <link href="css/freelancer.min.css" rel="stylesheet">
+  <!-- <link rel="stylesheet" type="text/css" href="/geoJSON/new_file.json"/> -->
+  <style type="text/css">
+	  
+	  #heatmap { width: 800px; height: 600px; }
+	  body { font: 16px/1.4 "Helvetica Neue", Arial, sans-serif; }
+	  .ghbtns { position: relative; top: 4px; margin-left: 5px; }
+	  a { color: #0077ff; }
+	  
+	#controls {
+		font-size: 20px;
+		/* float: left; */
+		/* position: absolute; */
+	}
+  .map {
+    width: 100%;
+    height:400px;
+  }
+  </style>
+  
+
+</head>
+
+<body id="page-top">
+  <!-- Navigation -->
+  <nav class="navbar navbar-expand-lg bg-secondary text-uppercase fixed-top" id="mainNav">
+    <div class="container">
+      <a class="navbar-brand js-scroll-trigger" href="#page-top">MAP</a>
+      <button class="navbar-toggler navbar-toggler-right text-uppercase font-weight-bold bg-primary text-white rounded" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+        Menu
+        <i class="fas fa-bars"></i>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarResponsive">
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item mx-0 mx-lg-1">
+            <a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger" href="#portfolio">Portfolio</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Masthead -->
+  <header class="masthead bg-primary text-white text-center">
+    <div class="container d-flex align-items-center flex-column">
+
+      <!-- Masthead Avatar Image -->
+      <img class="masthead-avatar mb-5" src="img/avataaars.svg" alt="">
+
+      <!-- Masthead Heading -->
+      <h1 class="masthead-heading text-uppercase mb-0">地图</h1>
+
+      <!-- Icon Divider -->
+      <div class="divider-custom divider-light">
+        <div class="divider-custom-line"></div>
+        <div class="divider-custom-icon">
+          <i class="fas fa-star"></i>
+        </div>
+        <div class="divider-custom-line"></div>
+      </div>
+
+      
+
+    </div>
+  </header>
+
+  <!-- Portfolio Section -->
+  <section class="page-section portfolio" id="portfolio">
+    <div class="container">
+
+      <!-- Portfolio Section Heading -->
+      <h2 class="page-section-heading text-center text-uppercase text-secondary mb-0">Portfolio</h2>
+
+      <!-- Icon Divider -->
+      <div class="divider-custom">
+        <div class="divider-custom-line"></div>
+        <div class="divider-custom-icon">
+          <i class="fas fa-star"></i>
+        </div>
+        <div class="divider-custom-line"></div>
+      </div>
+
+      <!-- Portfolio Grid Items -->
+      <div class="row">
+
+        <!-- Portfolio Item 1 -->
+        <div class="col-md-6 col-lg-4">
+          <div class="portfolio-item mx-auto" data-toggle="modal" data-target="#portfolioModal1">
+            <div class="portfolio-item-caption d-flex align-items-center justify-content-center h-100 w-100">
+              <div class="portfolio-item-caption-content text-center text-white">
+                <i class="fas fa-plus fa-3x"></i>
+              </div>
+            </div>
+			
+				<img class="img-fluid"  src="img/portfolio/map1.png"  alt="">
+				<h2 align="center" class="portfolio-modal-title text-secondary text-uppercase mb-0">基本地图</h2>
+            
+          </div>
+        </div>
+
+        <!-- Portfolio Item 2 -->
+        <div class="col-md-6 col-lg-4">
+          <div class="portfolio-item mx-auto" data-toggle="modal" data-target="#portfolioModal2">
+            <div class="portfolio-item-caption d-flex align-items-center justify-content-center h-100 w-100">
+              <div class="portfolio-item-caption-content text-center text-white">
+                <i class="fas fa-plus fa-3x"></i>
+              </div>
+            </div>
+            <img class="img-fluid" src="img/portfolio/map2.png" alt="">
+			<h2 align="center" class="portfolio-modal-title text-secondary text-uppercase mb-0">标记地图</h2>
+          </div>
+        </div>
+
+        <!-- Portfolio Item 3 -->
+        <div class="col-md-6 col-lg-4">
+          <div class="portfolio-item mx-auto" data-toggle="modal">
+			  <a href="heatmap.html" target="_blank">
+            <div class="portfolio-item-caption d-flex align-items-center justify-content-center h-100 w-100">
+              <div class="portfolio-item-caption-content text-center text-white">
+                <i class="fas fa-plus fa-3x"></i>
+              </div>
+            </div>
+            <img class="img-fluid" src="img/portfolio/hotmap.png" alt="">
+			</a>
+			<h2 align="center" class="portfolio-modal-title text-secondary text-uppercase mb-0">热点地图</h2>
+          </div>
+        </div>
+
+        <!-- Portfolio Item 4 -->
+        <div class="col-md-6 col-lg-4" >
+			
+          <div class="portfolio-item mx-auto" data-toggle="modal" data-target="#portfolioModal4">
+            <div class="portfolio-item-caption d-flex align-items-center justify-content-center h-100 w-100">
+              <div class="portfolio-item-caption-content text-center text-white">
+                <i class="fas fa-plus fa-3x"></i>
+              </div>
+            </div>
+            <img class="img-fluid" src="img/portfolio/map4.png" alt="" >
+			<h2 align="center" class="portfolio-modal-title text-secondary text-uppercase mb-0">绘制地图</h2>
+          </div>
+        </div>
+
+        <!-- Portfolio Item 5 -->
+		
+			<div class="col-md-6 col-lg-4" >
+          <div class="portfolio-item mx-auto" data-toggle="modal" >
+
+					<div class="portfolio-item-caption d-flex align-items-center justify-content-center h-100 w-100">
+					<div class="portfolio-item-caption-content text-center text-white">
+						<i class="fas fa-plus fa-3x"></i>
+					</div>
+					</div>
+				<img class="img-fluid" src="img/portfolio/map5.png" alt="">
+            
+			<h2 align="center" class="portfolio-modal-title text-secondary text-uppercase mb-0">南邮地图</h2>
+          </div>
+        </div>
+	
+        
+
+        <!-- Portfolio Item 6 -->
+        <div class="col-md-6 col-lg-4">
+          <div class="portfolio-item mx-auto" data-toggle="modal">
+            <div class="portfolio-item-caption d-flex align-items-center justify-content-center h-100 w-100">
+              <div class="portfolio-item-caption-content text-center text-white">
+                <i class="fas fa-plus fa-3x"></i>
+			 </div>
+            </div>
+            <img class="img-fluid" src="img/portfolio/map6.png" alt="">
+			<h2 align="center" class="portfolio-modal-title text-secondary text-uppercase mb-0">源文件</h2>
+			
+          </div>
+        </div>
+
+      </div>
+      <!-- /.row -->
+
+    </div>
+  </section>
+
+
+  <!-- Scroll to Top Button (Only visible on small and extra-small screen sizes) -->
+  <div class="scroll-to-top d-lg-none position-fixed ">
+    <a class="js-scroll-trigger d-block text-center text-white rounded" href="#page-top">
+      <i class="fa fa-chevron-up"></i>
+    </a>
+  </div>
+
+  <!-- Portfolio Modals -->
+
+  <!-- Portfolio Modal 1 -->
+  <div class="portfolio-modal modal fade" id="portfolioModal1" tabindex="-1" role="dialog" aria-labelledby="portfolioModal1Label" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+      <div class="modal-content">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">
+            <i class="fas fa-times"></i>
+          </span>
+        </button>
+        <div class="modal-body text-center">
+          <div class="container">
+            <div class="row justify-content-center">
+              <div class="col-lg-8">
+                <!-- Portfolio Modal - Title -->
+                <h2 class="portfolio-modal-title text-secondary text-uppercase mb-0">基本地图</h2>
+                <!-- Icon Divider -->
+                <div class="divider-custom">
+                  <div class="divider-custom-line"></div>
+                  <div class="divider-custom-icon">
+                    <i class="fas fa-star"></i>
+                  </div>
+                  <div class="divider-custom-line"></div>
+                </div>
+					<div class="map" id="basicMap"></div>
+                <br>
+                <button class="btn btn-primary" href="#" data-dismiss="modal">
+                  <i class="fas fa-times fa-fw"></i>
+                  Close Window
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Portfolio Modal 2 -->
+  <div class="portfolio-modal modal fade" id="portfolioModal2" tabindex="-1" role="dialog" aria-labelledby="portfolioModal2Label" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+      <div class="modal-content">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">
+            <i class="fas fa-times"></i>
+          </span>
+        </button>
+        <div class="modal-body text-center">
+          <div class="container">
+            <div class="row justify-content-center">
+              <div class="col-lg-8">
+                <!-- Portfolio Modal - Title -->
+                <h2 class="portfolio-modal-title text-secondary text-uppercase mb-0">标注地图</h2>
+                <!-- Icon Divider -->
+                <div class="divider-custom">
+                  <div class="divider-custom-line"></div>
+                  <div class="divider-custom-icon">
+                    <i class="fas fa-star"></i>
+                  </div>
+                  <div class="divider-custom-line"></div>
+                </div>
+               <div class="map" id="biaozhuMap"></div>
+                <div id="controls" >
+               	<button id="addButton">显示所有咖啡厅</button>
+               	<button id="removeButton">隐藏所有咖啡厅</button>
+               	<button id="toggleButton">显示/隐藏</button>
+               	<button id="filterSBux">星巴克</button>
+               	<button id="filterDD">甜甜圈</button>
+               </div><br>
+                <button class="btn btn-primary" href="#" data-dismiss="modal">
+                  <i class="fas fa-times fa-fw"></i>
+                  Close Window
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Portfolio Modal 4 -->
+  <div class="portfolio-modal modal fade" id="portfolioModal4" tabindex="-1" role="dialog" aria-labelledby="portfolioModal4Label" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+      <div class="modal-content">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">
+            <i class="fas fa-times"></i>
+          </span>
+        </button>
+        <div class="modal-body text-center">
+          <div class="container">
+            <div class="row justify-content-center">
+              <div class="col-lg-8">
+                <!-- Portfolio Modal - Title -->
+                <h2 class="portfolio-modal-title text-secondary text-uppercase mb-0">绘图</h2>
+                <!-- Icon Divider -->
+                <div class="divider-custom">
+                  <div class="divider-custom-line"></div>
+                  <div class="divider-custom-icon">
+                    <i class="fas fa-star"></i>
+                  </div>
+                  <div class="divider-custom-line"></div>
+                </div>
+				<div class="map" id="huitu"></div><br>
+				
+				    <form class="form-inline">
+				      <label>Geometry type &nbsp;</label>
+				      <select id="type">
+				        <option value="Point">Point</option>
+				        <option value="LineString">LineString</option>
+				        <option value="Polygon">Polygon</option>
+				        <option value="Circle">Circle</option>
+				        <option value="None">None</option>
+				      </select>
+				    </form><br>
+				
+				<button class="btn btn-primary" href="#" data-dismiss="modal">
+                  <i class="fas fa-times fa-fw"></i>
+                  Close Window
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap core JavaScript -->
+  <script src="vendor/jquery/jquery.min.js"></script>
+  <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Plugin JavaScript -->
+  <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+
+  <!-- Contact Form JavaScript -->
+  <script src="js/jqBootstrapValidation.js"></script>
+  <script src="js/contact_me.js"></script>
+
+  <!-- Custom scripts for this template -->
+  <script src="js/freelancer.min.js"></script>
+
+
+  
+  				<script>
+  				   // Create variable to hold map element, give initial settings to map
+  				    var basicMap = L.map('basicMap',{ center: [32.1176, 118.9243], zoom: 13});
+  					// Add OpenStreetMap tile layer to map element
+  					L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(basicMap);	
+				</script>
+				
+				<!-- //huitu -->
+				<script type="text/javascript">
+					var raster = new ol.layer.Tile({
+					  source: new ol.source.OSM()
+					});
+					
+					var source = new ol.source.Vector({wrapX: false});
+					
+					var vector = new ol.layer.Vector({
+					  source: source
+					});
+					
+					var huitu = new ol.Map({
+					  layers: [raster, vector],
+					  target: 'huitu',
+					  view: new ol.View({
+					    center: [12900000, 4900000],
+					    zoom: 4
+					  })
+					});
+					
+					var typeSelect = document.getElementById('type');
+					
+					var draw; // global so we can remove it later
+					function addInteraction() {
+					  var value = typeSelect.value;
+					  if (value !== 'None') {
+					    draw = new ol.interaction.Draw({
+					      source: source,
+					      type: typeSelect.value
+					    });
+					    huitu.addInteraction(draw);
+					  }
+					}
+					/**
+					 * Handle change event.
+					 */
+					typeSelect.onchange = function() {
+					  huitu.removeInteraction(draw);
+					  addInteraction();
+					};
+					
+					addInteraction();
+					
+				</script>
+				<!-- <script src="js/leaflet-heat.js"></script> -->
+				<!-- <script src="data/realworld.10000.js"></script> -->
+				<script>
+					// Web map code goes here
+					var biaozhuMap = L.map('biaozhuMap',{ center: [42.362432, -71.086086], zoom: 14 });
+					L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', { attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>' }).addTo(biaozhuMap);
+				
+					// Null variable that will hold our data
+					var coffeeShopPoints = null;
+				
+					$.getJSON("data/coffee_cafes.js",function(data){
+					    // set coffeeShops to GeoJSON, add GeoJSON layer to the map once the file is loaded
+					    coffeeShopPoints = L.geoJson(data,{
+							onEachFeature: function (feature, layer) {
+								layer.bindPopup(feature.properties.name);
+							}
+						}).addTo(biaozhuMap);
+					});
+				
+					// Function to add coffee shops
+					function addCoffeeShops(){
+						biaozhuMap.removeLayer(coffeeShopPoints);
+						$.getJSON("data/coffee_cafes.js",function(data){
+						    // set coffeeShops to GeoJSON, add GeoJSON layer to the map once the file is loaded
+						    coffeeShopPoints = L.geoJson(data,{
+								onEachFeature: function (feature, layer) {
+									layer.bindPopup(feature.properties.name);
+								}
+							}).addTo(biaozhuMap);
+						});
+					};
+				
+					// Function to remove coffee shops
+					function removeCoffeeShops(){
+						biaozhuMap.removeLayer(coffeeShopPoints);
+					};
+				
+					// Function to toggle coffee shops
+					function toggleCoffeeShops(){
+						if(biaozhuMap.hasLayer(coffeeShopPoints)){
+							removeCoffeeShops();
+						} else {
+							addCoffeeShops();
+						}
+					};
+					
+					// Use $( "elementID") and the jQuery click listener method to add all of the data layers
+					$( "#addButton" ).click(function() {
+						biaozhuMap.removeLayer(coffeeShopPoints);
+					    $.getJSON("data/coffee_cafes.js",function(data){
+					        // add GeoJSON layer to the map once the file is loaded
+					        coffeeShopPoints = L.geoJson(data,{
+								onEachFeature: function (feature, layer) {
+									layer.bindPopup(feature.properties.name);
+								}
+							}).addTo(biaozhuMap);
+					    });
+					});
+				
+					// Use $( "elementID") and the jQuery click listener method to remove all of the data layers
+					$( "#removeButton" ).click(function() {
+						biaozhuMap.removeLayer(coffeeShopPoints);
+					});
+				
+					// Use $( "elementID") and the jQuery click listener method to toggle on the toggle button
+					$( "#toggleButton" ).click(function() {
+						toggleCoffeeShops();
+					});
+				
+					// Use $( "elementID") and the jQuery click listener method filter Starbucks
+					$( "#filterSBux" ).click(function() {
+						removeCoffeeShops();
+					    $.getJSON("data/coffee_cafes.js",function(data){
+					        // add GeoJSON layer to the map once the file is loaded
+					        coffeeShopPoints = L.geoJson(data,{
+								onEachFeature: function (feature, layer) {
+									layer.bindPopup(feature.properties.name);
+								}, filter: function (feature, layer) {
+									return feature.properties.name == "Starbucks";
+								}
+							}).addTo(biaozhuMap);
+					    });
+					});
+				
+					// Use $( "elementID") and the jQuery click listener method filter Starbucks
+					$( "#filterDD" ).click(function() {
+						removeCoffeeShops();
+					    $.getJSON("data/coffee_cafes.js",function(data){
+					        // add GeoJSON layer to the map once the file is loaded
+					        coffeeShopPoints = L.geoJson(data,{
+								onEachFeature: function (feature, layer) {
+									layer.bindPopup(feature.properties.name);
+								}, filter: function (feature, layer) {
+									return feature.properties.name == "Dunkin' Donuts";
+								}
+							}).addTo(biaozhuMap);
+					    });
+					});
+					</script>
+</body>
+
+</html>

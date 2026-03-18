@@ -1,0 +1,1936 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>记分台</title>
+  <style>
+    :root {
+      --bg: #0f2c22;
+      --bg-deep: #081813;
+      --felt: #1f5b44;
+      --felt-light: #2d7a5a;
+      --felt-soft: rgba(46, 114, 85, 0.72);
+      --paper: rgba(246, 239, 219, 0.94);
+      --paper-soft: rgba(255, 250, 238, 0.9);
+      --gold: #c4a15b;
+      --gold-deep: #7f5c24;
+      --line: rgba(214, 193, 138, 0.18);
+      --ink: #1d251f;
+      --muted: #59685e;
+      --danger: #8e3f2f;
+      --danger-deep: #61271d;
+      --positive: #20563d;
+      --negative: #8f372c;
+      --shadow: 0 22px 50px rgba(0, 0, 0, 0.3);
+      --glow: 0 0 0 1px rgba(255, 255, 255, 0.1), 0 14px 30px rgba(0, 0, 0, 0.24);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      color-scheme: only light;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "PingFang SC", "Hiragino Sans GB", "STSong", "Songti SC", serif;
+      color: #f6f0dd;
+      background:
+        radial-gradient(circle at top, rgba(80, 148, 113, 0.2), transparent 35%),
+        radial-gradient(circle at bottom, rgba(231, 211, 158, 0.08), transparent 30%),
+        linear-gradient(180deg, var(--bg), var(--bg-deep));
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::before,
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    body::before {
+      background:
+        linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+      background-size: 28px 28px;
+      opacity: 0.25;
+    }
+
+    body::after {
+      background:
+        radial-gradient(circle at 50% 50%, rgba(255, 229, 170, 0.08), transparent 42%),
+        repeating-linear-gradient(
+          135deg,
+          rgba(255, 255, 255, 0.022),
+          rgba(255, 255, 255, 0.022) 10px,
+          rgba(0, 0, 0, 0.012) 10px,
+          rgba(0, 0, 0, 0.012) 20px
+        );
+      mix-blend-mode: screen;
+      opacity: 0.55;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    button {
+      appearance: none;
+      border: 0;
+      cursor: pointer;
+      transition: transform 180ms ease, box-shadow 180ms ease, opacity 180ms ease, background 180ms ease;
+    }
+
+    button:hover:not(:disabled) {
+      transform: translateY(-1px);
+    }
+
+    button:disabled {
+      opacity: 0.48;
+      cursor: not-allowed;
+    }
+
+    .shell {
+      width: min(1440px, calc(100vw - 32px));
+      margin: 24px auto;
+      background:
+        linear-gradient(180deg, rgba(25, 58, 45, 0.94), rgba(12, 29, 22, 0.96));
+      border: 1px solid rgba(221, 204, 145, 0.18);
+      border-radius: 32px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      backdrop-filter: blur(14px);
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 20px;
+      padding: 28px 30px 22px;
+      border-bottom: 1px solid rgba(223, 205, 152, 0.12);
+      background:
+        linear-gradient(135deg, rgba(232, 214, 161, 0.1), rgba(255, 255, 255, 0)),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0));
+    }
+
+    .hero-copy {
+      max-width: 760px;
+    }
+
+    .eyebrow {
+      margin: 0 0 10px;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      color: rgba(241, 223, 176, 0.76);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(36px, 6vw, 64px);
+      line-height: 0.95;
+      letter-spacing: 0.06em;
+      font-weight: 700;
+      color: #f8f2df;
+      text-shadow: 0 6px 20px rgba(0, 0, 0, 0.22);
+    }
+
+    .subtitle {
+      margin: 12px 0 0;
+      font-size: 15px;
+      line-height: 1.8;
+      color: rgba(242, 233, 208, 0.76);
+    }
+
+    .hero-actions {
+      display: grid;
+      align-content: start;
+      gap: 12px;
+      min-width: 240px;
+    }
+
+    .btn {
+      border-radius: 999px;
+      padding: 13px 18px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      box-shadow: 0 10px 18px rgba(0, 0, 0, 0.18);
+    }
+
+    .btn-primary {
+      color: #183122;
+      background: linear-gradient(135deg, #e7cf91, #b88c49);
+    }
+
+    .btn-secondary {
+      color: #f8f2df;
+      background: linear-gradient(135deg, rgba(61, 137, 99, 0.92), rgba(35, 90, 64, 0.92));
+      border: 1px solid rgba(238, 219, 169, 0.14);
+    }
+
+    .btn-ghost {
+      color: rgba(248, 242, 223, 0.9);
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(241, 225, 184, 0.14);
+      box-shadow: none;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.5fr) minmax(360px, 420px);
+      min-height: 720px;
+    }
+
+    .table-panel {
+      padding: 28px;
+      border-right: 1px solid rgba(241, 225, 184, 0.12);
+      background:
+        radial-gradient(circle at center, rgba(255, 241, 206, 0.045), transparent 44%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0));
+    }
+
+    .table-wrap {
+      position: relative;
+      min-height: 100%;
+      display: grid;
+      align-items: center;
+    }
+
+    .mahjong-table {
+      position: relative;
+      width: min(860px, 100%);
+      margin: 0 auto;
+      aspect-ratio: 1 / 1;
+      border-radius: 38px;
+      background:
+        radial-gradient(circle at 50% 45%, rgba(75, 157, 117, 0.35), transparent 42%),
+        linear-gradient(135deg, rgba(255, 241, 210, 0.06), transparent 28%),
+        linear-gradient(180deg, #28684b, #194331);
+      border: 1px solid rgba(241, 225, 184, 0.24);
+      box-shadow:
+        inset 0 0 0 2px rgba(0, 0, 0, 0.12),
+        inset 0 0 0 14px rgba(255, 255, 255, 0.025),
+        inset 0 26px 44px rgba(255, 255, 255, 0.04),
+        0 28px 54px rgba(0, 0, 0, 0.24);
+      overflow: hidden;
+      isolation: isolate;
+    }
+
+    .mahjong-table::before,
+    .mahjong-table::after {
+      content: "";
+      position: absolute;
+      inset: 24px;
+      border-radius: 28px;
+      pointer-events: none;
+    }
+
+    .mahjong-table::before {
+      border: 1px solid rgba(238, 220, 164, 0.12);
+      box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.08);
+    }
+
+    .mahjong-table::after {
+      inset: 42px;
+      border: 1px dashed rgba(255, 244, 211, 0.08);
+    }
+
+    .mahjong-table .tile-grid {
+      position: absolute;
+      inset: 18%;
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      grid-template-rows: repeat(5, minmax(0, 1fr));
+      gap: 12px;
+      opacity: 0.18;
+      pointer-events: none;
+      filter: drop-shadow(0 10px 22px rgba(0, 0, 0, 0.2));
+    }
+
+    .mahjong-table .tile-grid span {
+      border-radius: 16px;
+      border: 1px solid rgba(243, 229, 189, 0.18);
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.05)),
+        linear-gradient(135deg, rgba(255, 244, 214, 0.18), rgba(255, 244, 214, 0));
+    }
+
+    .flow-layer {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .table-center {
+      position: absolute;
+      inset: 50%;
+      width: min(280px, 44%);
+      aspect-ratio: 1 / 1;
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      padding: 28px;
+      text-align: center;
+      color: #f8f2df;
+      background:
+        radial-gradient(circle at top, rgba(255, 238, 197, 0.18), transparent 45%),
+        linear-gradient(180deg, rgba(26, 63, 46, 0.92), rgba(12, 34, 24, 0.94));
+      border: 1px solid rgba(241, 225, 184, 0.2);
+      box-shadow: inset 0 0 0 8px rgba(255, 255, 255, 0.028), var(--glow);
+      z-index: 2;
+    }
+
+    .center-kicker {
+      margin: 0 0 6px;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: rgba(241, 223, 176, 0.72);
+    }
+
+    .center-title {
+      margin: 0;
+      font-size: clamp(26px, 4vw, 34px);
+      line-height: 1.06;
+      letter-spacing: 0.08em;
+    }
+
+    .center-tip {
+      margin: 12px 0 0;
+      font-size: 14px;
+      line-height: 1.7;
+      color: rgba(246, 236, 206, 0.82);
+    }
+
+    .center-stats {
+      width: 100%;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .stat-card {
+      padding: 10px 8px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(241, 225, 184, 0.12);
+    }
+
+    .stat-label {
+      display: block;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(248, 238, 210, 0.6);
+    }
+
+    .stat-value {
+      display: block;
+      margin-top: 6px;
+      font-size: 20px;
+      font-weight: 700;
+      color: #f7efd8;
+    }
+
+    .players-layer {
+      position: absolute;
+      inset: 0;
+      z-index: 3;
+    }
+
+    .player-card {
+      position: absolute;
+      width: min(240px, 34%);
+      padding: 18px;
+      border-radius: 24px;
+      background:
+        linear-gradient(180deg, rgba(255, 248, 232, 0.94), rgba(240, 229, 198, 0.92));
+      color: var(--ink);
+      border: 1px solid rgba(128, 94, 35, 0.22);
+      box-shadow: 0 18px 34px rgba(0, 0, 0, 0.18);
+      transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease, background 180ms ease;
+      user-select: none;
+    }
+
+    .player-card::before {
+      content: "";
+      position: absolute;
+      inset: 10px;
+      border-radius: 18px;
+      border: 1px solid rgba(182, 152, 88, 0.14);
+      pointer-events: none;
+    }
+
+    .player-card.is-armed {
+      transform: translateY(-3px);
+      border-color: rgba(74, 138, 96, 0.72);
+      box-shadow: 0 22px 44px rgba(30, 74, 53, 0.25);
+    }
+
+    .player-card.is-drop-target {
+      border-color: rgba(207, 168, 88, 0.86);
+      background:
+        linear-gradient(180deg, rgba(255, 251, 240, 0.98), rgba(247, 236, 201, 0.95));
+      transform: scale(1.02);
+    }
+
+    .player-card.player-east {
+      top: 4.8%;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .player-card.player-south {
+      top: 50%;
+      right: 3.8%;
+      transform: translateY(-50%);
+    }
+
+    .player-card.player-west {
+      bottom: 4.8%;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .player-card.player-north {
+      top: 50%;
+      left: 3.8%;
+      transform: translateY(-50%);
+    }
+
+    .player-card.player-east.is-armed,
+    .player-card.player-east.is-drop-target,
+    .player-card.player-west.is-armed,
+    .player-card.player-west.is-drop-target {
+      transform: translateX(-50%) translateY(-3px);
+    }
+
+    .player-card.player-south.is-armed,
+    .player-card.player-south.is-drop-target,
+    .player-card.player-north.is-armed,
+    .player-card.player-north.is-drop-target {
+      transform: translateY(-50%) scale(1.01);
+    }
+
+    .player-head {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .avatar-shell {
+      width: 68px;
+      aspect-ratio: 1 / 1;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-size: 28px;
+      font-weight: 700;
+      color: #1d3c2d;
+      background:
+        radial-gradient(circle at top, rgba(255, 255, 255, 0.88), rgba(238, 227, 194, 0.82)),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.4), rgba(180, 150, 84, 0.12));
+      border: 1px solid rgba(133, 101, 42, 0.22);
+      box-shadow:
+        inset 0 0 0 6px rgba(255, 255, 255, 0.28),
+        0 12px 24px rgba(0, 0, 0, 0.16);
+      cursor: pointer;
+    }
+
+    .seat-badge {
+      margin: 0 0 8px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      color: var(--gold-deep);
+      background: rgba(199, 168, 99, 0.14);
+      border: 1px solid rgba(160, 118, 48, 0.18);
+    }
+
+    .name-input {
+      width: 100%;
+      margin: 0;
+      border: 0;
+      border-bottom: 1px solid rgba(127, 92, 36, 0.16);
+      background: transparent;
+      padding: 4px 0 6px;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--ink);
+      outline: none;
+    }
+
+    .name-input:focus {
+      border-bottom-color: rgba(40, 95, 67, 0.45);
+    }
+
+    .seat-note {
+      margin: 6px 0 0;
+      font-size: 13px;
+      line-height: 1.5;
+      color: var(--muted);
+    }
+
+    .money-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .money-card {
+      padding: 12px 13px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.62);
+      border: 1px solid rgba(120, 97, 46, 0.12);
+    }
+
+    .money-card span {
+      display: block;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(89, 104, 94, 0.92);
+    }
+
+    .money {
+      display: block;
+      margin-top: 8px;
+      font-size: 24px;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .money.is-positive {
+      color: var(--positive);
+    }
+
+    .money.is-negative {
+      color: var(--negative);
+    }
+
+    .money.is-neutral {
+      color: #445549;
+    }
+
+    .player-actions {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      margin-top: 16px;
+      align-items: center;
+    }
+
+    .arm-btn {
+      border-radius: 16px;
+      padding: 11px 14px;
+      font-size: 14px;
+      font-weight: 700;
+      color: #f6f0dd;
+      background: linear-gradient(135deg, #3a875f, #235842);
+      box-shadow: 0 10px 18px rgba(27, 66, 48, 0.2);
+    }
+
+    .drag-token {
+      padding: 11px 14px;
+      border-radius: 16px;
+      background:
+        linear-gradient(135deg, rgba(228, 207, 155, 0.96), rgba(183, 144, 76, 0.94));
+      color: #1a271f;
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      border: 1px solid rgba(126, 90, 30, 0.18);
+      cursor: grab;
+      white-space: nowrap;
+      box-shadow: 0 10px 18px rgba(119, 90, 38, 0.18);
+    }
+
+    .drag-token:active {
+      cursor: grabbing;
+    }
+
+    .drop-hint {
+      margin: 12px 0 0;
+      min-height: 20px;
+      font-size: 13px;
+      line-height: 1.5;
+      color: rgba(61, 81, 69, 0.82);
+    }
+
+    .side-panel {
+      padding: 24px;
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+      gap: 18px;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0)),
+        linear-gradient(180deg, rgba(17, 37, 28, 0.22), rgba(8, 20, 15, 0.08));
+    }
+
+    .panel {
+      border-radius: 24px;
+      background:
+        linear-gradient(180deg, rgba(255, 248, 232, 0.96), rgba(241, 231, 203, 0.94));
+      color: var(--ink);
+      border: 1px solid rgba(126, 93, 36, 0.14);
+      box-shadow: 0 14px 28px rgba(0, 0, 0, 0.14);
+      overflow: hidden;
+    }
+
+    .panel-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 18px 20px 14px;
+      border-bottom: 1px solid rgba(128, 94, 35, 0.12);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0));
+    }
+
+    .panel-head h2 {
+      margin: 0;
+      font-size: 22px;
+      line-height: 1.1;
+    }
+
+    .panel-head p {
+      margin: 4px 0 0;
+      font-size: 13px;
+      line-height: 1.6;
+      color: var(--muted);
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 7px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--gold-deep);
+      background: rgba(201, 169, 95, 0.14);
+      border: 1px solid rgba(166, 128, 58, 0.16);
+      white-space: nowrap;
+    }
+
+    .panel-body {
+      padding: 18px 20px 20px;
+    }
+
+    .empty {
+      padding: 18px 16px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.52);
+      border: 1px dashed rgba(130, 97, 39, 0.18);
+      font-size: 14px;
+      line-height: 1.8;
+      color: var(--muted);
+    }
+
+    .transfer-list,
+    .history-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .transfer-item {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 12px;
+      align-items: center;
+      padding: 14px 16px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.62);
+      border: 1px solid rgba(126, 93, 36, 0.12);
+    }
+
+    .transfer-route {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      font-size: 15px;
+      font-weight: 700;
+      color: #263128;
+    }
+
+    .transfer-route .arrow {
+      color: rgba(117, 86, 34, 0.7);
+      font-weight: 500;
+    }
+
+    .transfer-meta {
+      margin-top: 5px;
+      font-size: 13px;
+      line-height: 1.5;
+      color: var(--muted);
+    }
+
+    .amount-chip {
+      display: inline-flex;
+      align-items: center;
+      padding: 7px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      color: #184330;
+      background: rgba(69, 147, 103, 0.16);
+      border: 1px solid rgba(39, 100, 69, 0.16);
+    }
+
+    .text-btn {
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #f5ecda;
+      background: linear-gradient(135deg, #8b4635, #60271e);
+      box-shadow: 0 10px 18px rgba(110, 48, 38, 0.18);
+    }
+
+    .history-scroll {
+      overflow: auto;
+      min-height: 0;
+      padding: 0 20px 20px;
+    }
+
+    .history-card {
+      padding: 16px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.62);
+      border: 1px solid rgba(126, 93, 36, 0.12);
+    }
+
+    .history-card + .history-card {
+      margin-top: 12px;
+    }
+
+    .history-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .history-top h3 {
+      margin: 0;
+      font-size: 17px;
+      line-height: 1.25;
+    }
+
+    .history-time {
+      margin: 5px 0 0;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .history-transfers {
+      display: grid;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .history-route {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: rgba(245, 238, 221, 0.72);
+      border: 1px solid rgba(126, 93, 36, 0.08);
+      font-size: 14px;
+      color: #283228;
+    }
+
+    .history-nets {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .net-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      background: rgba(255, 255, 255, 0.72);
+      border: 1px solid rgba(126, 93, 36, 0.1);
+      color: #314034;
+    }
+
+    .history-actions {
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .mini-btn {
+      border-radius: 12px;
+      padding: 9px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #f5ecda;
+      background: linear-gradient(135deg, #734236, #56251d);
+      box-shadow: 0 10px 18px rgba(99, 40, 30, 0.16);
+    }
+
+    dialog {
+      border: 0;
+      padding: 0;
+      background: transparent;
+      max-width: min(480px, calc(100vw - 24px));
+    }
+
+    dialog::backdrop {
+      background: rgba(5, 15, 11, 0.58);
+      backdrop-filter: blur(5px);
+    }
+
+    .dialog-card {
+      padding: 24px;
+      border-radius: 28px;
+      background:
+        linear-gradient(180deg, rgba(255, 248, 232, 0.98), rgba(241, 231, 203, 0.96));
+      border: 1px solid rgba(126, 93, 36, 0.18);
+      box-shadow: 0 26px 50px rgba(0, 0, 0, 0.26);
+      color: var(--ink);
+    }
+
+    .dialog-kicker {
+      margin: 0 0 8px;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--gold-deep);
+    }
+
+    .dialog-title {
+      margin: 0;
+      font-size: 28px;
+      line-height: 1.12;
+    }
+
+    .dialog-copy {
+      margin: 12px 0 0;
+      font-size: 14px;
+      line-height: 1.7;
+      color: var(--muted);
+    }
+
+    .field {
+      margin-top: 18px;
+    }
+
+    .field label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #344036;
+    }
+
+    .field input {
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: 18px;
+      border: 1px solid rgba(110, 87, 38, 0.18);
+      background: rgba(255, 255, 255, 0.72);
+      color: var(--ink);
+      outline: none;
+      font-size: 17px;
+    }
+
+    .field input:focus {
+      border-color: rgba(41, 96, 68, 0.36);
+      box-shadow: 0 0 0 4px rgba(41, 96, 68, 0.08);
+    }
+
+    .dialog-error {
+      min-height: 20px;
+      margin: 10px 0 0;
+      font-size: 13px;
+      color: var(--danger);
+    }
+
+    .dialog-actions {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .dialog-actions .btn {
+      justify-content: center;
+    }
+
+    .flow-path {
+      fill: none;
+      stroke: rgba(231, 214, 169, 0.9);
+      stroke-width: 3;
+      stroke-linecap: round;
+      filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.26));
+    }
+
+    .flow-label-bg {
+      fill: rgba(250, 244, 228, 0.92);
+      stroke: rgba(154, 121, 54, 0.18);
+      stroke-width: 1;
+    }
+
+    .flow-label {
+      fill: #214431;
+      font-size: 12px;
+      font-weight: 700;
+      text-anchor: middle;
+      dominant-baseline: middle;
+    }
+
+    @media (max-width: 1180px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .table-panel {
+        border-right: 0;
+        border-bottom: 1px solid rgba(241, 225, 184, 0.12);
+      }
+
+      .side-panel {
+        grid-template-rows: auto auto;
+      }
+    }
+
+    @media (max-width: 860px) {
+      .shell {
+        width: min(100vw - 14px, 100%);
+        margin: 7px auto;
+        border-radius: 24px;
+      }
+
+      .hero {
+        grid-template-columns: 1fr;
+        padding: 24px 18px 20px;
+      }
+
+      .hero-actions {
+        min-width: 0;
+      }
+
+      .table-panel,
+      .side-panel {
+        padding: 18px;
+      }
+
+      .mahjong-table {
+        aspect-ratio: 1 / 1.18;
+      }
+
+      .player-card {
+        width: min(240px, 42%);
+        padding: 14px;
+        border-radius: 20px;
+      }
+
+      .avatar-shell {
+        width: 58px;
+        font-size: 24px;
+      }
+
+      .name-input {
+        font-size: 19px;
+      }
+
+      .money {
+        font-size: 20px;
+      }
+
+      .table-center {
+        width: min(250px, 52%);
+        padding: 22px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      h1 {
+        font-size: 38px;
+      }
+
+      .subtitle {
+        font-size: 14px;
+      }
+
+      .mahjong-table {
+        aspect-ratio: 1 / 1.36;
+      }
+
+      .mahjong-table .tile-grid {
+        inset: 24%;
+        gap: 8px;
+      }
+
+      .table-center {
+        width: min(220px, 58%);
+        padding: 18px;
+      }
+
+      .center-title {
+        font-size: 22px;
+      }
+
+      .center-stats {
+        grid-template-columns: 1fr;
+      }
+
+      .player-card {
+        width: min(244px, 46%);
+        padding: 12px;
+      }
+
+      .player-card.player-east {
+        top: 4.2%;
+      }
+
+      .player-card.player-west {
+        bottom: 4.2%;
+      }
+
+      .player-card.player-north {
+        top: 49%;
+        left: 2.6%;
+      }
+
+      .player-card.player-south {
+        top: 49%;
+        right: 2.6%;
+      }
+
+      .player-head {
+        gap: 10px;
+      }
+
+      .avatar-shell {
+        width: 50px;
+        font-size: 22px;
+      }
+
+      .seat-note,
+      .drop-hint,
+      .transfer-meta,
+      .panel-head p {
+        font-size: 12px;
+      }
+
+      .money-grid {
+        gap: 8px;
+      }
+
+      .player-actions {
+        grid-template-columns: 1fr;
+      }
+
+      .drag-token {
+        text-align: center;
+      }
+
+      .history-scroll {
+        padding: 0 16px 16px;
+      }
+
+      .panel-body,
+      .panel-head {
+        padding-left: 16px;
+        padding-right: 16px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation: none !important;
+        transition: none !important;
+        scroll-behavior: auto !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">Mahjong Ledger</p>
+        <h1>记分台</h1>
+        <p class="subtitle">
+          四人记分桌布局，拖拽付款牌到目标头像即可发起一笔记分；手机上也能先点“选作付款方”，再点目标头像完成录入。
+          确认后会保存为一整轮记录，存在浏览器本地，关闭页面也还在；要清空时手动删掉即可。
+        </p>
+      </div>
+      <div class="hero-actions">
+        <button class="btn btn-primary" id="confirmRoundBtn" type="button">确认本轮记分</button>
+        <button class="btn btn-secondary" id="clearDraftBtn" type="button">清空本轮草稿</button>
+        <button class="btn btn-ghost" id="clearHistoryBtn" type="button">手动清空全部记录</button>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="table-panel">
+        <div class="table-wrap">
+          <div class="mahjong-table" id="mahjongTable">
+            <div class="tile-grid" aria-hidden="true">
+              <span></span><span></span><span></span><span></span><span></span>
+              <span></span><span></span><span></span><span></span><span></span>
+              <span></span><span></span><span></span><span></span><span></span>
+              <span></span><span></span><span></span><span></span><span></span>
+              <span></span><span></span><span></span><span></span><span></span>
+            </div>
+            <svg class="flow-layer" id="flowLayer" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"></svg>
+            <div class="table-center">
+              <div>
+                <p class="center-kicker">Round Draft</p>
+                <h2 class="center-title" id="centerTitle">尚未开始本轮</h2>
+                <p class="center-tip" id="centerTip">从任意一家的付款牌开始，拖到收款方头像；或先点选付款方，再点目标头像。</p>
+                <div class="center-stats">
+                  <div class="stat-card">
+                    <span class="stat-label">本轮笔数</span>
+                    <span class="stat-value" id="draftCount">0</span>
+                  </div>
+                  <div class="stat-card">
+                    <span class="stat-label">本轮流水</span>
+                    <span class="stat-value" id="draftAmount">0</span>
+                  </div>
+                  <div class="stat-card">
+                    <span class="stat-label">累计轮数</span>
+                    <span class="stat-value" id="savedCount">0</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="players-layer" id="playersLayer"></div>
+          </div>
+        </div>
+      </section>
+
+      <aside class="side-panel">
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <h2>本轮草稿</h2>
+              <p>这里先堆本轮要确认的所记分，确认后再写入历史。</p>
+            </div>
+            <span class="pill" id="draftBadge">0 笔</span>
+          </div>
+          <div class="panel-body">
+            <div class="transfer-list" id="draftList"></div>
+          </div>
+        </section>
+
+        <section class="panel history-panel">
+          <div class="panel-head">
+            <div>
+              <h2>历史记录</h2>
+              <p>每点一次“确认本轮记分”，就会生成一轮本地记录。</p>
+            </div>
+            <span class="pill" id="historyBadge">0 轮</span>
+          </div>
+          <div class="history-scroll">
+            <div class="history-list" id="historyList"></div>
+          </div>
+        </section>
+      </aside>
+    </main>
+  </div>
+
+  <dialog id="transferDialog">
+    <form class="dialog-card" id="transferForm" novalidate>
+      <p class="dialog-kicker">Add Transfer</p>
+      <h2 class="dialog-title" id="dialogTitle">新增记分</h2>
+      <p class="dialog-copy" id="dialogCopy">输入这笔记分，加入本轮草稿。</p>
+      <div class="field">
+        <label for="amountInput">记分</label>
+        <input id="amountInput" name="amount" type="number" inputmode="decimal" min="0.1" step="0.1" placeholder="例如 20">
+      </div>
+      <p class="dialog-error" id="dialogError"></p>
+      <div class="dialog-actions">
+        <button class="btn btn-ghost" id="cancelTransferBtn" type="button">取消</button>
+        <button class="btn btn-primary" type="submit">加入本轮</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script>
+    const STORAGE_KEY = "mahjong-ledger-v1";
+    const PLAYER_LAYOUT = [
+      { id: "east", seat: "东", title: "东位", avatar: "东", note: "通常可当庄位使用" },
+      { id: "south", seat: "南", title: "南位", avatar: "南", note: "拖拽到此，表示他收款" },
+      { id: "west", seat: "西", title: "西位", avatar: "西", note: "累计分目会自动汇总" },
+      { id: "north", seat: "北", title: "北位", avatar: "北", note: "手机上可点选付款方后再点头像" }
+    ];
+
+    const playersLayer = document.getElementById("playersLayer");
+    const mahjongTable = document.getElementById("mahjongTable");
+    const flowLayer = document.getElementById("flowLayer");
+    const draftList = document.getElementById("draftList");
+    const historyList = document.getElementById("historyList");
+    const draftBadge = document.getElementById("draftBadge");
+    const historyBadge = document.getElementById("historyBadge");
+    const draftCountEl = document.getElementById("draftCount");
+    const draftAmountEl = document.getElementById("draftAmount");
+    const savedCountEl = document.getElementById("savedCount");
+    const centerTitle = document.getElementById("centerTitle");
+    const centerTip = document.getElementById("centerTip");
+    const confirmRoundBtn = document.getElementById("confirmRoundBtn");
+    const clearDraftBtn = document.getElementById("clearDraftBtn");
+    const clearHistoryBtn = document.getElementById("clearHistoryBtn");
+    const transferDialog = document.getElementById("transferDialog");
+    const transferForm = document.getElementById("transferForm");
+    const cancelTransferBtn = document.getElementById("cancelTransferBtn");
+    const dialogTitle = document.getElementById("dialogTitle");
+    const dialogCopy = document.getElementById("dialogCopy");
+    const dialogError = document.getElementById("dialogError");
+    const amountInput = document.getElementById("amountInput");
+
+    const playerEls = new Map();
+    let draftTransfers = [];
+    let armedPayerId = null;
+    let currentDragFromId = null;
+    let dialogContext = null;
+
+    const state = loadState();
+
+    createPlayers();
+    bindEvents();
+    renderAll();
+
+    function loadState() {
+      try {
+        const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+        return normalizeState(parsed);
+      } catch (error) {
+        return buildDefaultState();
+      }
+    }
+
+    function buildDefaultState() {
+      return {
+        version: 1,
+        players: PLAYER_LAYOUT.map((player) => ({
+          id: player.id,
+          name: player.seat + "家"
+        })),
+        rounds: []
+      };
+    }
+
+    function normalizeState(raw) {
+      const base = buildDefaultState();
+      const rawPlayers = Array.isArray(raw.players) ? raw.players : [];
+      const rawRounds = Array.isArray(raw.rounds) ? raw.rounds : [];
+
+      const players = PLAYER_LAYOUT.map((player) => {
+        const match = rawPlayers.find((item) => item && item.id === player.id);
+        const matchName = match && typeof match.name === "string" ? match.name : "";
+        const name = matchName.trim() ? matchName.trim() : player.seat + "家";
+        return { id: player.id, name };
+      });
+
+      const validIds = new Set(PLAYER_LAYOUT.map((player) => player.id));
+      const rounds = rawRounds
+        .map((round, index) => {
+          if (!round || !Array.isArray(round.transfers)) {
+            return null;
+          }
+
+          const transfers = round.transfers
+            .map((transfer) => {
+              const from = transfer && typeof transfer.from === "string" ? transfer.from : "";
+              const to = transfer && typeof transfer.to === "string" ? transfer.to : "";
+              const amount = Number(transfer && transfer.amount);
+              if (!validIds.has(from) || !validIds.has(to) || from === to || !(amount > 0)) {
+                return null;
+              }
+
+              return {
+                id: transfer && typeof transfer.id === "string" ? transfer.id : uid("transfer"),
+                from,
+                to,
+                amount: roundToOne(amount)
+              };
+            })
+            .filter(Boolean);
+
+          if (!transfers.length) {
+            return null;
+          }
+
+          return {
+            id: typeof round.id === "string" ? round.id : uid("round-" + index),
+            createdAt: typeof round.createdAt === "string" ? round.createdAt : new Date().toISOString(),
+            transfers
+          };
+        })
+        .filter(Boolean);
+
+      return {
+        ...base,
+        players,
+        rounds
+      };
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function bindEvents() {
+      confirmRoundBtn.addEventListener("click", confirmDraftRound);
+      clearDraftBtn.addEventListener("click", clearDraftTransfers);
+      clearHistoryBtn.addEventListener("click", clearAllHistory);
+      transferForm.addEventListener("submit", submitTransferDialog);
+      cancelTransferBtn.addEventListener("click", closeTransferDialog);
+      transferDialog.addEventListener("click", handleDialogBackdropClick);
+      transferDialog.addEventListener("close", resetDialog);
+      draftList.addEventListener("click", handleDraftListClick);
+      historyList.addEventListener("click", handleHistoryClick);
+      window.addEventListener("resize", scheduleFlowRender);
+      window.addEventListener("orientationchange", scheduleFlowRender);
+    }
+
+    function createPlayers() {
+      PLAYER_LAYOUT.forEach((meta) => {
+        const player = getPlayer(meta.id);
+        const card = document.createElement("article");
+        card.className = "player-card player-" + meta.id;
+        card.dataset.playerId = meta.id;
+        card.innerHTML = `
+          <div class="player-head">
+            <button class="avatar-shell" type="button" data-role="avatar" aria-label="选择 ${escapeHtml(player.name)} 作为收款方">${meta.avatar}</button>
+            <div>
+              <span class="seat-badge">${meta.title}</span>
+              <input class="name-input" data-role="name-input" type="text" maxlength="12" value="${escapeAttr(player.name)}" aria-label="${meta.title} 玩家名称">
+              <p class="seat-note">${meta.note}</p>
+            </div>
+          </div>
+          <div class="money-grid">
+            <div class="money-card">
+              <span>累计盈亏</span>
+              <strong class="money is-neutral" data-role="saved-balance">0</strong>
+            </div>
+            <div class="money-card">
+              <span>本轮草稿</span>
+              <strong class="money is-neutral" data-role="draft-balance">0</strong>
+            </div>
+          </div>
+          <div class="player-actions">
+            <button class="arm-btn" data-role="arm-btn" type="button">选作付款方</button>
+            <div class="drag-token" data-role="drag-token" draggable="true" title="拖拽到收款方头像">付款牌</div>
+          </div>
+          <p class="drop-hint" data-role="drop-hint">拖到这里即可记一笔记分</p>
+        `;
+
+        bindPlayerEvents(card, meta.id);
+        playersLayer.appendChild(card);
+        playerEls.set(meta.id, card);
+      });
+    }
+
+    function bindPlayerEvents(card, playerId) {
+      const nameInput = card.querySelector('[data-role="name-input"]');
+      const armBtn = card.querySelector('[data-role="arm-btn"]');
+      const dragToken = card.querySelector('[data-role="drag-token"]');
+      const avatarBtn = card.querySelector('[data-role="avatar"]');
+
+      nameInput.addEventListener("input", (event) => {
+        updatePlayerName(playerId, event.target.value);
+      });
+
+      armBtn.addEventListener("click", () => toggleArmedPayer(playerId));
+      avatarBtn.addEventListener("click", () => handleReceiverPick(playerId));
+
+      dragToken.addEventListener("dragstart", (event) => {
+        currentDragFromId = playerId;
+        card.classList.add("is-armed");
+        event.dataTransfer.effectAllowed = "move";
+        event.dataTransfer.setData("text/plain", playerId);
+      });
+
+      dragToken.addEventListener("dragend", () => {
+        currentDragFromId = null;
+        clearDropTargetStates();
+        renderPlayers();
+      });
+
+      card.addEventListener("dragover", (event) => {
+        const fromId = currentDragFromId || event.dataTransfer.getData("text/plain");
+        if (!fromId || fromId === playerId) {
+          return;
+        }
+        event.preventDefault();
+        card.classList.add("is-drop-target");
+      });
+
+      card.addEventListener("dragleave", () => {
+        card.classList.remove("is-drop-target");
+      });
+
+      card.addEventListener("drop", (event) => {
+        const fromId = currentDragFromId || event.dataTransfer.getData("text/plain");
+        event.preventDefault();
+        card.classList.remove("is-drop-target");
+        currentDragFromId = null;
+        if (!fromId || fromId === playerId) {
+          renderPlayers();
+          return;
+        }
+        openTransferDialog(fromId, playerId);
+      });
+    }
+
+    function renderAll() {
+      renderPlayers();
+      renderDraftList();
+      renderHistory();
+      renderCenterBoard();
+      scheduleFlowRender();
+    }
+
+    function renderPlayers() {
+      const savedBalances = getBalanceMap(flattenRoundTransfers(state.rounds));
+      const draftBalances = getBalanceMap(draftTransfers);
+
+      PLAYER_LAYOUT.forEach((meta) => {
+        const player = getPlayer(meta.id);
+        const card = playerEls.get(meta.id);
+        const nameInput = card.querySelector('[data-role="name-input"]');
+        const savedBalanceEl = card.querySelector('[data-role="saved-balance"]');
+        const draftBalanceEl = card.querySelector('[data-role="draft-balance"]');
+        const armBtn = card.querySelector('[data-role="arm-btn"]');
+        const dropHint = card.querySelector('[data-role="drop-hint"]');
+        const avatarBtn = card.querySelector('[data-role="avatar"]');
+
+        if (document.activeElement !== nameInput && nameInput.value !== player.name) {
+          nameInput.value = player.name;
+        }
+
+        avatarBtn.setAttribute("aria-label", "选择 " + player.name + " 作为收款方");
+        setMoney(savedBalanceEl, savedBalances[meta.id] || 0);
+        setMoney(draftBalanceEl, draftBalances[meta.id] || 0);
+
+        const armed = armedPayerId === meta.id || currentDragFromId === meta.id;
+        card.classList.toggle("is-armed", armed);
+
+        armBtn.textContent = armedPayerId === meta.id ? "取消付款方" : "选作付款方";
+
+        if (armedPayerId && armedPayerId !== meta.id) {
+          dropHint.textContent = "已选 " + getPlayer(armedPayerId).name + " 付款，点头像即可让 " + player.name + " 收款";
+        } else if (currentDragFromId && currentDragFromId !== meta.id) {
+          dropHint.textContent = "松手即可记录 " + getPlayer(currentDragFromId).name + " 转给 " + player.name;
+        } else if (armedPayerId === meta.id) {
+          dropHint.textContent = "接下来点任意其他头像，给对方收款";
+        } else {
+          dropHint.textContent = "拖到这里或点头像，都能记一笔记分";
+        }
+      });
+
+      confirmRoundBtn.disabled = draftTransfers.length === 0;
+      clearDraftBtn.disabled = draftTransfers.length === 0;
+      clearHistoryBtn.disabled = state.rounds.length === 0;
+    }
+
+    function renderDraftList() {
+      draftBadge.textContent = draftTransfers.length + " 笔";
+
+      if (!draftTransfers.length) {
+        draftList.innerHTML = `<div class="empty">本轮还没有记分。先拖一张“付款牌”到目标头像，或者点选付款方后再点收款方。</div>`;
+        return;
+      }
+
+      draftList.innerHTML = draftTransfers.map((transfer, index) => {
+        const from = getPlayer(transfer.from);
+        const to = getPlayer(transfer.to);
+        return `
+          <article class="transfer-item">
+            <div>
+              <div class="transfer-route">
+                <span>${escapeHtml(from.name)}</span>
+                <span class="arrow">→</span>
+                <span>${escapeHtml(to.name)}</span>
+                <span class="amount-chip">${formatAmount(transfer.amount)}</span>
+              </div>
+              <p class="transfer-meta">第 ${index + 1} 笔，确认本轮后会一起保存到本地。</p>
+            </div>
+            <button class="text-btn" type="button" data-action="remove-draft" data-id="${transfer.id}">删除</button>
+          </article>
+        `;
+      }).join("");
+    }
+
+    function renderHistory() {
+      historyBadge.textContent = state.rounds.length + " 轮";
+      savedCountEl.textContent = String(state.rounds.length);
+
+      if (!state.rounds.length) {
+        historyList.innerHTML = `<div class="empty">还没有历史记录。确认一轮后，这里会显示时间、记分明细和每家的当轮净额。</div>`;
+        return;
+      }
+
+      const formatter = new Intl.DateTimeFormat("zh-CN", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit"
+      });
+
+      historyList.innerHTML = [...state.rounds].reverse().map((round, reverseIndex) => {
+        const roundNumber = state.rounds.length - reverseIndex;
+        const roundBalances = getBalanceMap(round.transfers);
+        const transferHtml = round.transfers.map((transfer) => {
+          const from = getPlayer(transfer.from);
+          const to = getPlayer(transfer.to);
+          return `
+            <div class="history-route">
+              <span>${escapeHtml(from.name)} → ${escapeHtml(to.name)}</span>
+              <strong>${formatAmount(transfer.amount)}</strong>
+            </div>
+          `;
+        }).join("");
+
+        const netsHtml = PLAYER_LAYOUT.map((player) => {
+          const value = roundBalances[player.id] || 0;
+          return `<span class="net-chip">${escapeHtml(getPlayer(player.id).name)} ${formatSignedAmount(value)}</span>`;
+        }).join("");
+
+        return `
+          <article class="history-card">
+            <div class="history-top">
+              <div>
+                <h3>第 ${roundNumber} 轮</h3>
+                <p class="history-time">${formatter.format(new Date(round.createdAt))}</p>
+              </div>
+              <span class="pill">${round.transfers.length} 笔</span>
+            </div>
+            <div class="history-transfers">${transferHtml}</div>
+            <div class="history-nets">${netsHtml}</div>
+            <div class="history-actions">
+              <button class="mini-btn" type="button" data-action="delete-round" data-id="${round.id}">删除这一轮</button>
+            </div>
+          </article>
+        `;
+      }).join("");
+    }
+
+    function renderCenterBoard() {
+      const totalDraftAmount = roundToOne(draftTransfers.reduce((sum, transfer) => sum + transfer.amount, 0));
+
+      draftCountEl.textContent = String(draftTransfers.length);
+      draftAmountEl.textContent = formatAmount(totalDraftAmount);
+
+      if (armedPayerId) {
+        centerTitle.textContent = getPlayer(armedPayerId).name + " 已选为付款方";
+        centerTip.textContent = "现在点任意其他头像，就会弹出记分输入框。若改主意，再点一次付款方按钮即可取消。";
+        return;
+      }
+
+      if (draftTransfers.length) {
+        centerTitle.textContent = "本轮草稿待确认";
+        centerTip.textContent = "连线只是预览，点击“确认本轮记分”才会正式写入本地历史。";
+        return;
+      }
+
+      centerTitle.textContent = "尚未开始本轮";
+      centerTip.textContent = "从任意一家的付款牌开始，拖到收款方头像；或先点选付款方，再点目标头像。";
+    }
+
+    function scheduleFlowRender() {
+      window.requestAnimationFrame(renderFlowLayer);
+    }
+
+    function renderFlowLayer() {
+      const tableRect = mahjongTable.getBoundingClientRect();
+      const width = tableRect.width;
+      const height = tableRect.height;
+
+      if (!width || !height) {
+        return;
+      }
+
+      flowLayer.setAttribute("viewBox", "0 0 " + width + " " + height);
+      flowLayer.innerHTML = `
+        <defs>
+          <marker id="flow-arrow" viewBox="0 0 10 10" refX="8.6" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="rgba(231, 214, 169, 0.9)"></path>
+          </marker>
+        </defs>
+      `;
+
+      if (!draftTransfers.length) {
+        return;
+      }
+
+      const groups = new Map();
+
+      draftTransfers.forEach((transfer) => {
+        const key = transfer.from + "->" + transfer.to;
+        const list = groups.get(key) || [];
+        list.push(transfer);
+        groups.set(key, list);
+      });
+
+      groups.forEach((transfers, key) => {
+        const [fromId, toId] = key.split("->");
+        const fromPoint = getAnchorPoint(fromId, tableRect);
+        const toPoint = getAnchorPoint(toId, tableRect);
+        if (!fromPoint || !toPoint) {
+          return;
+        }
+
+        transfers.forEach((transfer, index) => {
+          const pathData = buildCurve(fromPoint, toPoint, index, transfers.length);
+          const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+          path.setAttribute("d", pathData.d);
+          path.setAttribute("class", "flow-path");
+          path.setAttribute("marker-end", "url(#flow-arrow)");
+          flowLayer.appendChild(path);
+
+          const labelGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+          const labelWidth = Math.max(56, String(formatAmount(transfer.amount)).length * 9.5);
+          const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+          rect.setAttribute("class", "flow-label-bg");
+          rect.setAttribute("x", String(pathData.label.x - labelWidth / 2));
+          rect.setAttribute("y", String(pathData.label.y - 12));
+          rect.setAttribute("width", String(labelWidth));
+          rect.setAttribute("height", "24");
+          rect.setAttribute("rx", "12");
+
+          const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+          text.setAttribute("class", "flow-label");
+          text.setAttribute("x", String(pathData.label.x));
+          text.setAttribute("y", String(pathData.label.y + 0.5));
+          text.textContent = formatAmount(transfer.amount);
+
+          labelGroup.appendChild(rect);
+          labelGroup.appendChild(text);
+          flowLayer.appendChild(labelGroup);
+        });
+      });
+    }
+
+    function buildCurve(fromPoint, toPoint, index, total) {
+      const dx = toPoint.x - fromPoint.x;
+      const dy = toPoint.y - fromPoint.y;
+      const length = Math.hypot(dx, dy) || 1;
+      const normalX = -dy / length;
+      const normalY = dx / length;
+      const spread = (index - (total - 1) / 2) * 26;
+      const controlX = fromPoint.x + dx / 2 + normalX * (44 + spread);
+      const controlY = fromPoint.y + dy / 2 + normalY * (44 + spread);
+      const labelX = 0.25 * fromPoint.x + 0.5 * controlX + 0.25 * toPoint.x;
+      const labelY = 0.25 * fromPoint.y + 0.5 * controlY + 0.25 * toPoint.y;
+
+      return {
+        d: "M " + fromPoint.x + " " + fromPoint.y + " Q " + controlX + " " + controlY + " " + toPoint.x + " " + toPoint.y,
+        label: {
+          x: labelX,
+          y: labelY
+        }
+      };
+    }
+
+    function getAnchorPoint(playerId, tableRect) {
+      const card = playerEls.get(playerId);
+      const avatar = card ? card.querySelector('[data-role="avatar"]') : null;
+      if (!avatar) {
+        return null;
+      }
+      const rect = avatar.getBoundingClientRect();
+      return {
+        x: rect.left - tableRect.left + rect.width / 2,
+        y: rect.top - tableRect.top + rect.height / 2
+      };
+    }
+
+    function toggleArmedPayer(playerId) {
+      armedPayerId = armedPayerId === playerId ? null : playerId;
+      renderPlayers();
+      renderCenterBoard();
+    }
+
+    function handleReceiverPick(receiverId) {
+      if (!armedPayerId || armedPayerId === receiverId) {
+        return;
+      }
+      openTransferDialog(armedPayerId, receiverId);
+    }
+
+    function openTransferDialog(fromId, toId) {
+      dialogContext = { fromId, toId };
+      dialogTitle.textContent = getPlayer(fromId).name + " 转给 " + getPlayer(toId).name;
+      dialogCopy.textContent = "输入记分后，这笔记分会先进入本轮草稿，确认本轮时再整体写入浏览器本地。";
+      dialogError.textContent = "";
+      amountInput.value = "";
+      if (typeof transferDialog.showModal === "function") {
+        transferDialog.showModal();
+      } else {
+        transferDialog.setAttribute("open", "open");
+      }
+      window.setTimeout(() => amountInput.focus(), 30);
+    }
+
+    function submitTransferDialog(event) {
+      event.preventDefault();
+
+      if (!dialogContext) {
+        closeTransferDialog();
+        return;
+      }
+
+      const amount = roundToOne(Number(amountInput.value));
+      if (!(amount > 0)) {
+        dialogError.textContent = "请输入大于 0 的记分。";
+        amountInput.focus();
+        return;
+      }
+
+      draftTransfers.push({
+        id: uid("draft"),
+        from: dialogContext.fromId,
+        to: dialogContext.toId,
+        amount
+      });
+
+      armedPayerId = null;
+      closeTransferDialog();
+      renderAll();
+    }
+
+    function closeTransferDialog() {
+      if (typeof transferDialog.close === "function" && transferDialog.open) {
+        transferDialog.close();
+      } else {
+        transferDialog.removeAttribute("open");
+        resetDialog();
+      }
+    }
+
+    function resetDialog() {
+      dialogContext = null;
+      dialogError.textContent = "";
+      transferForm.reset();
+    }
+
+    function handleDialogBackdropClick(event) {
+      const rect = transferForm.getBoundingClientRect();
+      const inside = rect.top <= event.clientY &&
+        event.clientY <= rect.bottom &&
+        rect.left <= event.clientX &&
+        event.clientX <= rect.right;
+
+      if (!inside) {
+        closeTransferDialog();
+      }
+    }
+
+    function handleDraftListClick(event) {
+      const button = event.target.closest('[data-action="remove-draft"]');
+      if (!button) {
+        return;
+      }
+      const id = button.dataset.id;
+      draftTransfers = draftTransfers.filter((transfer) => transfer.id !== id);
+      renderAll();
+    }
+
+    function handleHistoryClick(event) {
+      const button = event.target.closest('[data-action="delete-round"]');
+      if (!button) {
+        return;
+      }
+      const id = button.dataset.id;
+      const round = state.rounds.find((item) => item.id === id);
+      if (!round) {
+        return;
+      }
+      if (!window.confirm("确认删除这一轮记录吗？这会立即从浏览器本地移除。")) {
+        return;
+      }
+      state.rounds = state.rounds.filter((item) => item.id !== id);
+      saveState();
+      renderAll();
+    }
+
+    function confirmDraftRound() {
+      if (!draftTransfers.length) {
+        return;
+      }
+
+      state.rounds.push({
+        id: uid("round"),
+        createdAt: new Date().toISOString(),
+        transfers: draftTransfers.map((transfer) => ({
+          id: transfer.id,
+          from: transfer.from,
+          to: transfer.to,
+          amount: transfer.amount
+        }))
+      });
+
+      draftTransfers = [];
+      armedPayerId = null;
+      saveState();
+      renderAll();
+    }
+
+    function clearDraftTransfers() {
+      if (!draftTransfers.length) {
+        return;
+      }
+      if (!window.confirm("确认清空本轮草稿吗？未确认的记分会全部丢弃。")) {
+        return;
+      }
+      draftTransfers = [];
+      armedPayerId = null;
+      renderAll();
+    }
+
+    function clearAllHistory() {
+      if (!state.rounds.length) {
+        return;
+      }
+      if (!window.confirm("确认手动清空全部历史记录吗？浏览器本地保存的轮次会全部删除。")) {
+        return;
+      }
+      state.rounds = [];
+      draftTransfers = [];
+      armedPayerId = null;
+      saveState();
+      renderAll();
+    }
+
+    function updatePlayerName(playerId, nextName) {
+      const player = getPlayer(playerId);
+      const value = nextName.trim().slice(0, 12) || playerIdToSeat(playerId) + "家";
+      player.name = value;
+      saveState();
+      renderDraftList();
+      renderHistory();
+      renderCenterBoard();
+      renderPlayers();
+    }
+
+    function clearDropTargetStates() {
+      playerEls.forEach((card) => card.classList.remove("is-drop-target"));
+    }
+
+    function getBalanceMap(transfers) {
+      const balances = Object.fromEntries(PLAYER_LAYOUT.map((player) => [player.id, 0]));
+      transfers.forEach((transfer) => {
+        balances[transfer.from] -= transfer.amount;
+        balances[transfer.to] += transfer.amount;
+      });
+      Object.keys(balances).forEach((key) => {
+        balances[key] = roundToOne(balances[key]);
+      });
+      return balances;
+    }
+
+    function getPlayer(playerId) {
+      return state.players.find((player) => player.id === playerId);
+    }
+
+    function setMoney(element, value) {
+      const rounded = roundToOne(value);
+      element.textContent = formatSignedAmount(rounded);
+      element.classList.remove("is-positive", "is-negative", "is-neutral");
+      if (rounded > 0) {
+        element.classList.add("is-positive");
+      } else if (rounded < 0) {
+        element.classList.add("is-negative");
+      } else {
+        element.classList.add("is-neutral");
+      }
+    }
+
+    function formatAmount(value) {
+      return trimNumber(roundToOne(value));
+    }
+
+    function formatSignedAmount(value) {
+      const rounded = roundToOne(value);
+      if (rounded > 0) {
+        return "+" + trimNumber(rounded);
+      }
+      if (rounded < 0) {
+        return trimNumber(rounded);
+      }
+      return "0";
+    }
+
+    function trimNumber(value) {
+      const rounded = roundToOne(value);
+      if (Number.isInteger(rounded)) {
+        return String(rounded);
+      }
+      return rounded.toFixed(1).replace(/\.0$/, "");
+    }
+
+    function roundToOne(value) {
+      return Math.round(value * 10) / 10;
+    }
+
+    function uid(prefix) {
+      if (window.crypto && typeof window.crypto.randomUUID === "function") {
+        return prefix + "-" + crypto.randomUUID();
+      }
+      return prefix + "-" + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+    }
+
+    function playerIdToSeat(playerId) {
+      const player = PLAYER_LAYOUT.find((item) => item.id === playerId);
+      return player ? player.seat : "";
+    }
+
+    function flattenRoundTransfers(rounds) {
+      return rounds.reduce((allTransfers, round) => allTransfers.concat(round.transfers), []);
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function escapeAttr(value) {
+      return escapeHtml(value);
+    }
+  </script>
+</body>
+</html>

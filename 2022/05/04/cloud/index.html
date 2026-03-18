@@ -1,0 +1,29 @@
+<span id="more"></span>
+<!DOCTYPE html>
+<html lang="zn">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>clouds</title>
+</head>
+<body>
+    <div style="height: 400px;">
+        <div id="vantaRef"></div>
+    </div>
+</body>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r121/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vanta@0.5.22/dist/vanta.clouds.min.js"></script>
+<script>
+VANTA.CLOUDS({
+  el: "#vantaRef",
+  mouseControls: true,
+  touchControls: true,
+  gyroControls: false,
+  minHeight: document.body.offsetHeight,
+  minWidth: 200.00,
+  skyColor: 0x4893b6
+})
+</script>
+</html>

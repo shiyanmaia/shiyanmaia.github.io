@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="zn">
+  <body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/16.7.0/Tween.js"></script>
+    <script>
+      var box = document.createElement('div')
+      // var box=document.getElementById('#shenme1')
+      box.style.setProperty('width', '20px')
+      box.style.setProperty('z-index', '999999999999999')
+      box.style.setProperty('height', '20px')
+      // box.style.setProperty('background-color', 'black');
+      box.style.setProperty('background-position', 'center')
+      box.style.setProperty('background-size', '100%')
+      box.style.setProperty('background-image', 'url(./bomb.png)')
+      box.style.setProperty(
+        'transform',
+        'translate(' + 300 + 'px, ' + 300 + 'px)'
+      )
+      document.body.appendChild(box)
+
+      function animate(time) {
+        requestAnimationFrame(animate)
+        TWEEN.update(time)
+      }
+      requestAnimationFrame(animate)
+
+      var H = 100
+
+      var coords = { x: 300, y: 0 }
+      var tween = new TWEEN.Tween(coords)
+        .to({ x: 0, y: 360 }, 1000)
+        .easing(TWEEN.Easing.Linear.None)
+        .onUpdate(function () {
+          var c = H
+          var a = 5 / (6 * H)
+          var b = -11 / 6
+          var x = coords.x
+          var y = a * x * x + b * x + c
+          console.log(coords.y)
+          box.style.setProperty(
+            'transform',
+            `translate(${x}px, ${y}px) rotate(${coords.y}deg)`
+          )
+          // box.style.setProperty('transform', `rotate(${coords.y}deg)`);
+        })
+        .start()
+    </script>
+  </body>
+</html>
